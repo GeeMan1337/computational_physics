@@ -42,7 +42,7 @@ program random_number_generation
     do i=1,10
         write (1,*) rand_num(i)
     end do
-    write (1,"(/)")
+    
     close(1)
 
     !!! changing seed 10 times and writing 10 random numbers for each seed   
