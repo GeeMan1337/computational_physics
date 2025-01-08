@@ -1,42 +1,57 @@
-subroutine random_number_seed(input_seed, seed_len, out_num)
-
+!!!!!!!!!!!!! Question 1.h  !!!!!!!!!!!!!!!!!
+program name
     implicit none
+    integer :: i, j, no_bins=50
+    real*8 :: random(100000), sum_(100000), s, m, range, binwidth 
     
-    integer :: seed_len, i
-    integer, intent(in) :: input_seed(seed_len)
-    real *8, intent(out) :: out_num
+    real*8, allocatable :: bincenter(:),binedges(:), hist(:), norm_hist(:)
+    allocate(binedges(no_bins+1))
+    allocate(bincenter(no_bins))
+    allocate(hist(no_bins))
+    allocate (norm_hist(no_bins))
+    sum_=0
+    do i=1,100000
+        call random_number(random)
+        end do
+        sum_=sum(random)
+   
+    open(unit=5, file= 'distv.dat')
 
-    if (seed_len /= size(input_seed)) then
-        print *, "Error: Subroutine random_number_seed error. Lengths don't match"
-        go to 1
-    end if
-
-    if (seed_len<8) then
-        print *, "Error: Subroutine random_number_seed error. Seed must be an array with atleast 8 elements."
-        go to 1
-    end if
-
-    call random_seed(size=seed_len)
-    call random_seed(put=input_seed)
-    call random_number(out_num)
-
-1   end subroutine random_number_seed
-
-
-program test_1
-    implicit none
-    integer :: len
-    integer:: seed(8)
-    real *8:: output
-
-    call random_seed(get=seed)
-    len=size(seed)
+    s=maxval(sum_)
+    print*, s 
+    m= minval(sum_)
+    print*, m  
     
-    call random_seed(put=seed)
-    !seed=[22342323,32313,34234234,342423424,454353534,78686786,65464564,53452452]
+    range=s-m 
+    binwidth=range/no_bins
 
-    call random_number_seed(seed,len, output)
+    do j=1,no_bins
+        binedges(j)=m+binwidth*(j-1)
+    end do
+    binedges(no_bins+1)=s  ! assign max value to last bin point
+
     
-    print *, output
+    hist=0
 
-    end program test_1
+    do i=1,100000
+        do j=1,no_bins
+        if ( sum_(i)>=binedges(j) .and. sum_(i)<binedges(j+1) ) then
+            hist(j)=hist(j)+1
+        end if
+    end do 
+end do
+s=sum(hist)
+do j=1,no_bins
+    norm_hist(j)=hist(j)/s
+end do
+
+write(5,*) 'bin center', 'normalized freq'
+do i=1,no_bins
+    bincenter(i)=binedges(i)+binwidth/2
+    write(5,*) bincenter(i), norm_hist(i)
+end do
+
+
+
+
+end program name

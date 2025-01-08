@@ -9,6 +9,7 @@ program random_number_generation
     call random_seed(size = seed_size)
     allocate(get_seed(seed_size))
 
+    !!! question 1b
     !!! can use this to give custom seed
 
     !allocate(give_seed(seed_size))
@@ -30,6 +31,7 @@ program random_number_generation
         write (1,*) rand_num(i)
     end do
 
+    !!! question 1c
     write (1,"(a,/,a,/,a)") "", "Changing seed and generating 10 new random numbers:", ""
 
     !!! changing seed and writing 10 new random numbers
@@ -45,6 +47,7 @@ program random_number_generation
     
     close(1)
 
+    !!! question 1d
     !!! changing seed 10 times and writing 10 random numbers for each seed   
     do j=1,10
         call random_seed()
