@@ -1,12 +1,12 @@
-subroutine random_number_seed(input_seed, seed_len, out_num, out_len)
+subroutine random_number_seed(input_seed, seed_len, out_num)
 
     implicit none
     
-    integer :: seed_len, out_len, i, min_size
+    integer :: seed_len, i
     integer, intent(in) :: input_seed(seed_len)
-    real, intent(out) :: out_num(out_len)
+    real *8, intent(out) :: out_num
 
-    if (seed_len /= size(input_seed) .and. out_len /= size(out_num)) then
+    if (seed_len /= size(input_seed)) then
         print *, "Error: Subroutine random_number_seed error. Lengths don't match"
         go to 1
     end if
@@ -16,14 +16,9 @@ subroutine random_number_seed(input_seed, seed_len, out_num, out_len)
         go to 1
     end if
 
-    min_size=min(seed_len,out_len)
-
-    call random_seed(size=min_size)
+    call random_seed(size=seed_len)
     call random_seed(put=input_seed)
-
-    do i=1,out_len
-        call random_number(out_num(i))
-    end do
+    call random_number(out_num)
 
 1   end subroutine random_number_seed
 
@@ -32,15 +27,15 @@ program test_1
     implicit none
     integer :: len
     integer:: seed(8)
-    real :: output(10)
+    real *8:: output
 
     call random_seed(get=seed)
     len=size(seed)
     
-    !call random_seed(put=seed)
-    seed=[22342323,32313,34234234,342423424,454353534,78686786,65464564,53452452]
+    call random_seed(put=seed)
+    !seed=[22342323,32313,34234234,342423424,454353534,78686786,65464564,53452452]
 
-    call random_number_seed(seed,len-2, output,10)
+    call random_number_seed(seed,len, output)
     
     print *, output
 
