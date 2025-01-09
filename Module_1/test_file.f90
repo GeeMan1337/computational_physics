@@ -1,57 +1,38 @@
-!!!!!!!!!!!!! Question 1.h  !!!!!!!!!!!!!!!!!
-program name
+program large_number_trials
     implicit none
-    integer :: i, j, no_bins=50
-    real*8 :: random(100000), sum_(100000), s, m, range, binwidth 
-    
-    real*8, allocatable :: bincenter(:),binedges(:), hist(:), norm_hist(:)
-    allocate(binedges(no_bins+1))
-    allocate(bincenter(no_bins))
-    allocate(hist(no_bins))
-    allocate (norm_hist(no_bins))
-    sum_=0
-    do i=1,100000
-        call random_number(random)
+
+    integer :: i, j        !iterating variable
+    real *8 :: sum_list(10000), rand_num(10000)
+    real *8 :: sum_bigger_list(100000), rand_bigger_num(100000)
+
+    integer :: num_bins, min_val, max_val
+    real *8, allocatable :: bins(:), frequency(:)
+    real *8 :: bin_size 
+
+    !!! question 1h
+    !!! finding the sum of 10^4 trials 10^4 times
+    do i=1,10000
+        call random_seed()
+        do j=1,10000
+            call random_number(rand_num(j))
         end do
-        sum_=sum(random)
-   
-    open(unit=5, file= 'distv.dat')
-
-    s=maxval(sum_)
-    print*, s 
-    m= minval(sum_)
-    print*, m  
-    
-    range=s-m 
-    binwidth=range/no_bins
-
-    do j=1,no_bins
-        binedges(j)=m+binwidth*(j-1)
+        sum_list(i)=sum(rand_num)
     end do
-    binedges(no_bins+1)=s  ! assign max value to last bin point
 
-    
-    hist=0
+    !!! code to construct bins and frequency for histogram
+    min_val=int(minval(sum_list)-bin_size)
+    max_val=int(maxval(sum_list)+1)
 
-    do i=1,100000
-        do j=1,no_bins
-        if ( sum_(i)>=binedges(j) .and. sum_(i)<binedges(j+1) ) then
-            hist(j)=hist(j)+1
-        end if
-    end do 
-end do
-s=sum(hist)
-do j=1,no_bins
-    norm_hist(j)=hist(j)/s
-end do
+    if (mod(real(max_val),bin_size) /= 0.0) then
+        max_val=int(max_val-mod(real(max_val),bin_size)+2*bin_size)
+    end if
 
-write(5,*) 'bin center', 'normalized freq'
-do i=1,no_bins
-    bincenter(i)=binedges(i)+binwidth/2
-    write(5,*) bincenter(i), norm_hist(i)
-end do
+    num_bins=int(max_val-min_val)
 
+    do i=1,num_bins
+        bins(i)=min_val+(i-1)*bin_size
+    end do
 
+    print *, bins
 
-
-end program name
+end program large_number_trials
