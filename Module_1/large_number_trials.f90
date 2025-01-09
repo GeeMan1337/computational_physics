@@ -119,7 +119,7 @@ program large_number_trials
     !end do
     !close(5)
 
-    call graph_data(sum_bigger_list,100000,1.0,"E:\computational_physics\Module_1_out\graph_data_1i_3.dat",17)
+    call graph_data(sum_bigger_list,100000,1.0,"E:\computational_physics\Module_1_out\graph_data_1i_2.dat",17)
 
 end program large_number_trials
 
