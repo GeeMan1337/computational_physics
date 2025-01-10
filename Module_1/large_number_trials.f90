@@ -24,19 +24,16 @@ program large_number_trials
     !end do
     !close(1)
 
-    call graph_data(sum_list,10000,0.5,"E:\computational_physics\Module_1_out\graph_data_1h_1.dat",11)
-    call graph_data(sum_list,10000,1.0,"E:\computational_physics\Module_1_out\graph_data_1h_2.dat",12)
-    call graph_data(sum_list,10000,2.0,"E:\computational_physics\Module_1_out\graph_data_1h_3.dat",13)
+    call graph_data(sum_list,10000,0.5,"even","E:\computational_physics\Module_1_out\graph_data_1h_1.dat",11)
+    call graph_data(sum_list,10000,1.0,"even","E:\computational_physics\Module_1_out\graph_data_1h_2.dat",12)
+    call graph_data(sum_list,10000,2.0,"even","E:\computational_physics\Module_1_out\graph_data_1h_3.dat",13)
 
     !!! 10^4 trials with 10^4 random numbers between -1 and 1 
     do i=1,10000
         call random_seed()
         do j=1,10000
             call random_number(rand_num(j))
-            rand_num(j)=2.0*rand_num(j)     !doubling the random number between 0 and 1
-            if (rand_num(j)>1) then
-                rand_num(j)=rand_num(j)-2       !if the doubled random number is greater than 1 then subrtacting 2 to put it in -1 to 0 range
-            end if
+            rand_num(j)=2.0*rand_num(j)-1.0     !doubling the random number in [0,1] and subtracting 1 to get it in range [-1,1]
         end do
         sum_list(i)=sum(rand_num)
     end do
@@ -48,7 +45,7 @@ program large_number_trials
     !end do
     !close(2)
 
-    call graph_data(sum_list,10000,2.0,"E:\computational_physics\Module_1_out\graph_data_1h_4.dat",14)
+    call graph_data(sum_list,10000,2.0,"even","E:\computational_physics\Module_1_out\graph_data_1h_4.dat",14)
 
     !!! 10^5 trials with 10^4 random numbers between -1 and 1 (10 times the previous one)
     do i=1,100000
@@ -70,7 +67,7 @@ program large_number_trials
     !end do
     !close(3)
 
-    call graph_data(sum_bigger_list,100000,2.0,"E:\computational_physics\Module_1_out\graph_data_1h_5.dat",15)
+    call graph_data(sum_bigger_list,100000,2.0,"even","E:\computational_physics\Module_1_out\graph_data_1h_5.dat",15)
 
     !!! question 1i
     !!! 10^4 trials with 10^4 random numbers either -1 and 1
@@ -94,8 +91,11 @@ program large_number_trials
     !end do
     !close(4)
 
-    call graph_data(sum_list,10000,1.0,"E:\computational_physics\Module_1_out\graph_data_1i_1.dat",16)
-
+    call graph_data(sum_list,10000,1.0,"even","E:\computational_physics\Module_1_out\graph_data_1i_1.dat",16)
+    call graph_data(sum_list,10000,2.0,"even","E:\computational_physics\Module_1_out\graph_data_1i_2.dat",17)
+    call graph_data(sum_list,10000,2.0,"odd","E:\computational_physics\Module_1_out\graph_data_1i_3.dat",18)
+    call graph_data(sum_list,10000,5.0,"even","E:\computational_physics\Module_1_out\graph_data_1i_4.dat",19)
+    call graph_data(sum_list,10000,10.0,"even","E:\computational_physics\Module_1_out\graph_data_1i_5.dat",20)
 
     !!! question 1k
     !!! 10^5 trials with 10^5 random numbers either -1 and 1
@@ -119,15 +119,15 @@ program large_number_trials
     !end do
     !close(5)
 
-    call graph_data(sum_bigger_list,100000,1.0,"E:\computational_physics\Module_1_out\graph_data_1i_2.dat",17)
+    call graph_data(sum_bigger_list,100000,2.0,"even","E:\computational_physics\Module_1_out\graph_data_1k_1.dat",21)
 
 end program large_number_trials
 
 !!! code to write bins and frequency for histogram
-subroutine graph_data(data_array, data_size, bin_size, path, unit_num)
+subroutine graph_data(data_array, data_size, bin_size, bin_start, path, unit_num)
     implicit none
 
-    character(len=*), intent(in) :: path
+    character(len=*), intent(in) :: bin_start, path
     integer :: i, j
     integer :: num_bins, min_val, max_val
     integer, intent(in) :: data_size, unit_num
@@ -136,6 +136,13 @@ subroutine graph_data(data_array, data_size, bin_size, path, unit_num)
     real *8, intent(in) :: data_array(data_size)
 
     min_val=int(minval(data_array)-bin_size)
+
+    if (bin_size==2.0 .and. (bin_start=="Even" .or. bin_start=="even") .and. mod(min_val,2) /= 0) then
+        min_val=min_val-1
+    else if (bin_size==2.0 .and. (bin_start=="Odd" .or. bin_start=="odd") .and. mod(min_val,2) == 0) then
+        min_val=min_val-1
+    end if
+
     max_val=int(maxval(data_array)+1.0)
 
     if (mod(real(max_val-min_val),bin_size) /= 0.0) then
