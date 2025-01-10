@@ -160,7 +160,7 @@ subroutine graph_data(data_array, data_size, bin_size, bin_start, path, unit_num
     end do
 
     do i=1,num_bins
-        do j=1,10000
+        do j=1,data_size
             if (data_array(j)>=bins(i) .and. data_array(j)<bins(i)+bin_size) then
                 frequency(i)=frequency(i)+1
             end if
