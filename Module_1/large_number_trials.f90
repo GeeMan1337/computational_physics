@@ -174,7 +174,7 @@ subroutine graph_data(data_array, data_size, bin_size, bin_start, path, unit_num
     open(unit=unit_num, file=path)
     
     do i=1,num_bins
-        write (unit_num,*) bins(i), " - ", frequency(i), " - ", frequency(i)/data_size
+        write (unit_num,*) bins(i), " - ", frequency(i), " - ", frequency(i)/data_size, " - ", frequency(i)/(data_size*bin_size)
     end do
 
     close(unit_num)
