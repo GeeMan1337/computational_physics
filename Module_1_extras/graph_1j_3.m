@@ -23,6 +23,8 @@ legend('Data points for 10^4 sums','Gaussian fit');
 mean = gauss_fit.b1;
 std = gauss_fit.c1/sqrt(2);
 
-text(max(x)-200, max(y)*0.8, ['Mean = ', num2str(mean, '%.2f'), ', Std = ', num2str(std, '%.2f')]);
+text(max(x)-200, max(y)*0.8, {['Mean = ', num2str(mean, '%.2f'), ', Std = ', num2str(std, '%.2f')]...
+    ['a1 = ',num2str(gauss_fit.a1)]});
+
 
 hold off;

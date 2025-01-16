@@ -3,10 +3,10 @@ graph_data_1 = readtable('E:\computational_physics\Module_1_out\graph_data_1h_4.
 graph_data_2 = readtable('E:\computational_physics\Module_1_out\graph_data_1h_5.dat');
 
 x1 = table2array(graph_data_1(:, 1));
-y1 = table2array(graph_data_1(:, 5));
+y1 = table2array(graph_data_1(:, 7));
 
 x2 = table2array(graph_data_2(:, 1));
-y2 = table2array(graph_data_2(:, 5));
+y2 = table2array(graph_data_2(:, 7));
 
 gauss_fit_1 = fit(x1, y1, 'gauss1');
 gauss_fit_2 = fit(x2, y2, 'gauss1');
@@ -17,8 +17,10 @@ grid on;
 hold on;
 
 % Scatter plot
-scatter(x1, y1, 'blue', 'Marker', 'o');
-scatter(x2, y2, 'red', 'Marker','x')
+scatter(x1, y1, 'blue', 'Marker', '.');
+scatter(x2, y2, 'red', 'Marker','.');
+plot(gauss_fit_1, 'blue');
+plot(gauss_fit_2, 'red');
 
 xlabel('Bin Centre of Sums');
 ylabel('Normalized Frequency');

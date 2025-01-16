@@ -18,6 +18,8 @@ hold on;
 % Scatter plot
 scatter(x1, y1, 'blue', 'Marker', 'o');
 scatter(x2, y2, 'red', 'Marker','x')
+plot(gauss_fit_1, 'blue')
+plot(gauss_fit_2, 'red')
 
 xlabel('Bin Centre of Sums');
 ylabel('Normalized Frequency');
@@ -40,6 +42,7 @@ text(max(x1)-180, max(y1)*0.8, {['Mean for even bins= ', num2str(mean_1, '%.2f')
     ['Mean for odd bins= ', num2str(mean_2, '%.2f')],...
     ['Std for odd bins= ', num2str(std_2, '%.2f')]});
 
-text(max(x1)-180, max(y1)*0.5,{['area 1 is= ',num2str(area_1)],['area 2 is= ',num2str(area_2)]})
+text(max(x1)-180, max(y1)*0.5,{['a1 for even bins = ',num2str(gauss_fit_1.a1)],...
+    ['a1 for red bins = ',num2str(gauss_fit_2.a1)]});
 
 hold off;

@@ -98,6 +98,23 @@ program large_number_trials
     call graph_data(sum_list,10000,10.0,"even","E:\computational_physics\Module_1_out\graph_data_1i_5.dat",20)
 
     !!! question 1k
+    !!! 10^5 trials with 10^4 random numbers either -1 and 1
+    do i=1,100000
+        call random_seed()
+        do j=1,10000
+            call random_number(rand_num(j))
+            if (rand_num(j)>0.5) then
+                rand_num(j)=-1
+            else
+                rand_num(j)=1
+            end if
+        end do
+        sum_bigger_list(i)=sum(rand_num)
+    end do
+
+    call graph_data(sum_bigger_list,100000,2.0,"even","E:\computational_physics\Module_1_out\graph_data_1k_1.csv",21)
+
+    !!! question 1l
     !!! 10^5 trials with 10^5 random numbers either -1 and 1
     do i=1,100000
         call random_seed()
@@ -119,7 +136,7 @@ program large_number_trials
     !end do
     !close(5)
 
-    call graph_data(sum_bigger_list,100000,2.0,"even","E:\computational_physics\Module_1_out\graph_data_1k_1.dat",21)
+    call graph_data(sum_bigger_list,100000,2.0,"even","E:\computational_physics\Module_1_out\graph_data_1l_1.csv",22)
 
 end program large_number_trials
 

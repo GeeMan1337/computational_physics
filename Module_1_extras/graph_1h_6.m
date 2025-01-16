@@ -1,7 +1,7 @@
 %graph for question 1h_6
 graph_data = readtable('E:\computational_physics\Module_1_out\graph_data_1h_3.dat');
 x = table2array(graph_data(:, 1));
-y = table2array(graph_data(:, 5));
+y = table2array(graph_data(:, 7));
 gauss_fit = fit(x, y, 'gauss1');
 
 figure;
