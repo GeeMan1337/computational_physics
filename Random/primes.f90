@@ -9,7 +9,7 @@ program primes
     integer, external :: is_prime
 
     count = 0
-    upper_lim = 10**9
+    upper_lim = 10**5
     allocate(prime_list(upper_lim/2))
 
     prime_list(1) = 2
@@ -22,7 +22,7 @@ program primes
         end if
     end do
 
-    open(unit = 1, file = "C:\computational_physics\Module_2\prime_list.csv")
+    open(unit = 1, file = "E:\computational_physics\Random\prime_list.dat")
 
     do i = 1, count 
         write (1,*) prime_list(i)
