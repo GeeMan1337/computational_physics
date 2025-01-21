@@ -1,9 +1,8 @@
-real*8 function fun(in_function, in_value) result(out_value)
+real function fun(in_function, x) result(out_value)
     implicit none 
 
-    real*8 :: in_value, in_function, x
+    real :: in_function, x
     
-    x = in_value
     out_value = in_function
 
 end function fun
@@ -11,9 +10,13 @@ end function fun
 
 program output 
     implicit none 
-    real*8 :: fun, x
+    real :: x, fun
+    integer :: value
+    character :: expression(50)
 
-    call fun(1+x, 3)
+    expression = "3+3"
 
+    read(expression, *) value
+    print *, value
 
 end program output
