@@ -153,7 +153,7 @@ subroutine graph_data(list_1, list_2, list_size, path, unit_num)
     open(unit=unit_num, file=path)
 
     do i = 1, list_size
-        write(unit_num,*) 1/(list_1(i)**2), " - ", log10(list_2(i))
+        write(unit_num,*) log10(list_1(i)), " - ", log10(list_2(i))
     end do
 
     close(unit_num)
