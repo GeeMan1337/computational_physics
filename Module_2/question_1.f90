@@ -1,140 +1,139 @@
 program trapezoidal_integral
-    implicit none
+    implicit none 
 
-    integer :: i, n
+    integer :: i, n, index, exponent
     real*8 :: x, dx
-    real*8 :: function_1, function_2, upper_lim, lower_lim, integral
-    real*8 :: integral_list(4), error_list(4)
-    real*8, parameter :: pi = 2*asin(1.0d0)
-    
+    real*8 :: function_1, upper_lim, lower_lim, integral
+    real*8 :: integral_list(10), error_list(10), n_list(10), dx_list(10)
+    real*8, parameter :: pi = 2.0d0 * asin(1.0d0)
+
+    !!! question 1a and 1b
+
+    index = 0
     upper_lim = 1.0d0
     lower_lim = 0.0d0
 
-    !!! Question 1a
-    ! dx = 0.01
+    do exponent = 1, 7
+        
+        index = index + 1
+        dx = 10.0d0**(-real(exponent))
+        integral = 0d0
 
-    dx = 0.01d0
-    integral = 0d0
+        ! number of subdivisions is n
 
-    ! number of subdivisions is n
+        n = int((upper_lim - lower_lim)/dx)
 
-    n = int((upper_lim - lower_lim)/dx)
+        if (n <= 0) then
+            print *, "Error! Number of subdivisions is not positive"
+            print *, dx
+        end if
 
-    if (n <= 0) then
-        print *, "Error! Number of subdivisions is not positive"
-    end if
+        do i = 1, n
+            x = lower_lim + i*dx
+            function_1 = 4/(1+x**2)
+            integral = integral + dx*function_1
+        end do
 
-    do i = 1, n
-        x = lower_lim + i*dx
+        x = lower_lim
         function_1 = 4/(1+x**2)
-        integral = integral + dx*function_1
+        integral = integral + (dx/2) * function_1 
+
+        x = upper_lim
+        function_1 = 4/(1+x**2)
+        integral = integral + ((upper_lim - lower_lim - n*dx)/2) * function_1 
+
+        integral_list(index) = integral
+        error_list(index) = abs(integral - pi)
+        n_list(index) = n
+    
     end do
 
-    x = lower_lim
-    function_1 = 4/(1+x**2)
-    integral = integral + (dx/2) * function_1 
 
-    x = upper_lim
-    function_1 = 4/(1+x**2)
-    integral = integral + ((upper_lim - lower_lim - n*dx)/2) * function_1 
+    !!! question 1c
 
-    integral_list(1) = integral
-    error_list(1) = abs(integral - pi)
+    index = 0
+    upper_lim = pi
+    lower_lim = 0.0d0
 
+    do exponent = 1, 6
+        
+        index = index + 1
+        dx = 10.0d0**(-real(exponent))
+        integral = 0d0
 
-    ! dx = 0.001
+        ! number of subdivisions is n
 
-    dx = 0.001d0
-    integral = 0d0
+        n = int((upper_lim - lower_lim)/dx)
 
-    ! number of subdivisions is n
+        if (n <= 0) then
+            print *, "Error! Number of subdivisions is not positive"
+            print *, dx
+        end if
 
-    n = int((upper_lim - lower_lim)/dx)
+        do i = 1, n
+            x = lower_lim + i*dx
+            function_1 = sin(x)
+            integral = integral + dx*function_1
+        end do
 
-    if (n <= 0) then
-        print *, "Error! Number of subdivisions is not positive"
-    end if
+        x = lower_lim
+        function_1 = sin(x)
+        integral = integral + (dx/2) * function_1 
 
-    do i = 1, n
-        x = lower_lim + i*dx
-        function_1 = 4/(1+x**2)
-        integral = integral + dx*function_1
+        x = upper_lim
+        function_1 = sin(x)
+        integral = integral + ((upper_lim - lower_lim - n*dx)/2) * function_1 
+
+        integral_list(index) = integral
+        error_list(index) = abs(integral - 2.0d0)
+        n_list(index) = n
+    
     end do
 
-    x = lower_lim
-    function_1 = 4/(1+x**2)
-    integral = integral + (dx/2) * function_1 
 
-    x = upper_lim
-    function_1 = 4/(1+x**2)
-    integral = integral + ((upper_lim - lower_lim - n*dx)/2) * function_1 
+    !!! question 1d
 
-    integral_list(2) = integral
-    error_list(2) = abs(integral - pi)
+    index = 0
+    upper_lim = 3.0d0
+    lower_lim = -3.0d0
 
+    do exponent = 1, 7
+        
+        index = index + 1
+        dx = 10.0d0**(-real(exponent))
+        integral = 0d0
 
-    ! dx = 0.0001
+        ! number of subdivisions is n
 
-    dx = 0.0001d0
-    integral = 0d0
+        n = int((upper_lim - lower_lim)/dx)
+        print *, n
+        if (n <= 0) then
+            print *, "Error! Number of subdivisions is not positive"
+            print *, dx
+        end if
 
-    ! number of subdivisions is n
+        do i = 1, n
+            x = lower_lim + i*dx
+            function_1 = 1/sqrt(2*pi) * exp(-(x**2)/2.0d0)
+            integral = integral + dx*function_1
+        end do
 
-    n = int((upper_lim - lower_lim)/dx)
+        x = lower_lim
+        function_1 = 1/sqrt(2*pi) * exp(-(x**2)/2.0d0)
+        integral = integral + (dx/2) * function_1 
 
-    if (n <= 0) then
-        print *, "Error! Number of subdivisions is not positive"
-    end if
+        x = upper_lim
+        function_1 = 1/sqrt(2*pi) * exp(-(x**2)/2.0d0)
+        integral = integral + ((upper_lim - lower_lim - n*dx)/2) * function_1 
 
-    do i = 1, n
-        x = lower_lim + i*dx
-        function_1 = 4/(1+x**2)
-        integral = integral + dx*function_1
+        integral_list(index) = integral
+        error_list(index) = abs(integral - 0.9973d0)
+        n_list(index) = n
+        dx_list(index) = dx
+
     end do
-
-    x = lower_lim
-    function_1 = 4/(1+x**2)
-    integral = integral + (dx/2) * function_1 
-
-    x = upper_lim
-    function_1 = 4/(1+x**2)
-    integral = integral + ((upper_lim - lower_lim - n*dx)/2) * function_1 
-
-    integral_list(3) = integral
-    error_list(3) = abs(integral - pi)
-
-
-    ! dx = 0.00001
-
-    dx = 0.00001d0
-    integral = 0d0
-
-    ! number of subdivisions is n
-
-    n = int((upper_lim - lower_lim)/dx)
-
-    if (n <= 0) then
-        print *, "Error! Number of subdivisions is not positive"
-    end if
-
-    do i = 1, n
-        x = lower_lim + i*dx
-        function_1 = 4/(1+x**2)
-        integral = integral + dx*function_1
-    end do
-
-    x = lower_lim
-    function_1 = 4/(1+x**2)
-    integral = integral + (dx/2) * function_1 
-
-    x = upper_lim
-    function_1 = 4/(1+x**2)
-    integral = integral + ((upper_lim - lower_lim - n*dx)/2) * function_1 
-
-    integral_list(4) = integral
-    error_list(4) = abs(integral - pi)
-
-    print *, integral_list
-    print *, error_list
-
+    print *, error_list(1:index)
+    print *, 0.9973d0
 end program trapezoidal_integral
+
+!subroutine graph_data()
