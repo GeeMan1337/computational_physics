@@ -13,7 +13,7 @@ program trapezoidal_integral
     upper_lim = 1.0d0
     lower_lim = 0.0d0
 
-    do exponent = 1, 7
+    do exponent = 1, 5
         
         index = index + 1
         dx = 10.0d0**(-real(exponent))
@@ -48,6 +48,7 @@ program trapezoidal_integral
     
     end do
 
+    call graph_data(n_list, error_list, index, "question_1a_data.dat", 1)
 
     !!! question 1c
 
@@ -90,6 +91,8 @@ program trapezoidal_integral
     
     end do
 
+    call graph_data(n_list, error_list, index, "question_1c_data.dat", 2)
+
 
     !!! question 1d
 
@@ -106,7 +109,7 @@ program trapezoidal_integral
         ! number of subdivisions is n
 
         n = int((upper_lim - lower_lim)/dx)
-        print *, n
+
         if (n <= 0) then
             print *, "Error! Number of subdivisions is not positive"
             print *, dx
@@ -132,8 +135,27 @@ program trapezoidal_integral
         dx_list(index) = dx
 
     end do
-    print *, error_list(1:index)
-    print *, 0.9973d0
+
+    call graph_data(n_list, error_list, index, "question_1d_data.dat", 3)
+
 end program trapezoidal_integral
 
-!subroutine graph_data()
+
+!!! code to write graph data onto file
+subroutine graph_data(list_1, list_2, list_size, path, unit_num)
+    implicit none 
+
+    character(len=*), intent(in) :: path
+    integer :: i
+    integer, intent(in) :: list_size, unit_num
+    real *8, intent(in) :: list_1(list_size), list_2(list_size)
+
+    open(unit=unit_num, file=path)
+
+    do i = 1, list_size
+        write(unit_num,*) 1/(list_1(i)**2), " - ", log10(list_2(i))
+    end do
+
+    close(unit_num)
+
+end subroutine graph_data
