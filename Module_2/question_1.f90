@@ -48,7 +48,7 @@ program trapezoidal_integral
     
     end do
 
-    call graph_data(n_list, error_list, index, "question_1a_data.dat", 1)
+    call graph_data(n_list, error_list, index, "E:\computational_physics\Module_2_out\question_1a_data.dat", 1)
 
     !!! question 1c
 
@@ -91,7 +91,7 @@ program trapezoidal_integral
     
     end do
 
-    call graph_data(n_list, error_list, index, "question_1c_data.dat", 2)
+    call graph_data(n_list, error_list, index, "E:\computational_physics\Module_2_out\question_1c_data.dat", 2)
 
 
     !!! question 1d
@@ -136,7 +136,7 @@ program trapezoidal_integral
 
     end do
 
-    call graph_data(n_list, error_list, index, "question_1d_data.dat", 3)
+    call graph_data(n_list, error_list, index, "E:\computational_physics\Module_2_out\question_1d_data.dat", 3)
 
 end program trapezoidal_integral
 
