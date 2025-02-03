@@ -32,6 +32,7 @@ program multi_dim_integral
     avg = sum_val/num(k)
     sigma = sum_temp/num(k) - avg**2
     integral = volume * avg
+    sigma = volume * sigma/sqrt(1.0d0*num(k))
     print *, "Integral with", num(k), "samples is", integral
     print *, "Error is", sigma
     print *, " "

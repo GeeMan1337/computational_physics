@@ -48,6 +48,7 @@ program trapezoidal_integral
     
     end do
 
+    print *, integral_list(1:5)
     call graph_data(n_list, error_list, index, "E:\computational_physics\Module_2_out\question_1a_data.dat", 1)
 
     !!! question 1c

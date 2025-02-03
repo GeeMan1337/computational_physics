@@ -6,7 +6,7 @@ program random_numbers
     real, allocatable :: rand_num(:), rand_num_square(:), corr_list(:)
     real :: sigma, avg, sum_val
 
-    num = 10**5
+    num = 10**4
 
     allocate(rand_num(num))
     allocate(rand_num_square(num))
