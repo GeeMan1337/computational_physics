@@ -1,4 +1,21 @@
-program ising_model     !make this into a subroutine for easy use
+program question_1
+    implicit none
+
+    !real :: j_ising, kt, start_config
+    !integer :: len, niter, unit_num
+    !character(len=*) :: path
+
+    call ising_model(20, 1.0, 60.0, 10**5, "minus", 1, "E:\computational_physics\Module_3_out\question_1_data.dat")
+    call ising_model(10, 1.0, 1.0, 10**5, "plus", 2, "E:\computational_physics\Module_3_out\question_2_data.dat")
+    call ising_model(10, 1.0, 0.001, 10**5, "plus", 3, "E:\computational_physics\Module_3_out\question_3_data.dat")
+    call ising_model(10, 1.0, 60.0, 10**5, "random", 4, "E:\computational_physics\Module_3_out\question_4_data.dat")
+    call ising_model(10, 1.0, 0.001, 10**5, "random", 5, "E:\computational_physics\Module_3_out\question_5_data.dat")
+
+
+end program question_1
+
+
+subroutine ising_model(len, j_ising, kt, niter, start_config, unit_num, path)
     implicit none 
 
     integer :: i, j, k      !iterating variables
@@ -7,39 +24,53 @@ program ising_model     !make this into a subroutine for easy use
     real :: avg_energy, avg_magnet, heat_cap, chi       !Macroscopic observables
     real :: energy, magnet, energy_per_spin, magnet_per_spin, config_energy !magnet is the total magnetic moment of the entire lattice
     real :: scaled_energy, scaled_magnet
-    integer :: len, niter, num_spin, index
+    integer :: len, niter, num_spin, index, unit_num
     real :: j_ising, kt     !kt is temperature multiplied by boltzmann const. 
     real :: lattice_energy      !these are function variables
-    integer, allocatable :: spin(:,:,:)        !3D lattice with spins
-    real, allocatable :: energy_list(:), magnet_list(:) 
+    integer :: spin(len, len, len)       !3D lattice with spins
+    real :: energy_list(niter*(len**3)+1), magnet_list(niter*(len**3)+1)
+    character(len=*) :: start_config, path
 
-    j_ising = 1.0
-    kt = 60
-    niter = 10**4
-    len = 20
     num_spin = len**3
-
-    allocate(spin(len, len, len))
-    allocate(energy_list(niter*num_spin+1))
-    allocate(magnet_list(niter*num_spin+1))
-
-
     index = 1
     magnet = 0
 
-    do i = 1, len 
-        do j = 1, len 
-            do k = 1, len
-                call random_number(temp)
-                if (temp<0.5) then
-                    spin(i,j,k) = -1
-                else
+    if (start_config == "plus") then        !this is initializing the spins in the lattice
+        do i = 1, len 
+            do j = 1, len 
+                do k = 1, len
                     spin(i,j,k) = 1
-                end if
-                magnet = magnet + spin(i,j,k)      !this is adding up the magnetic moments
+                    magnet = magnet + spin(i,j,k)      !this is adding up the magnetic moments
+                end do
             end do
         end do
-    end do
+
+    elseif (start_config == "minus") then
+        do i = 1, len 
+            do j = 1, len 
+                do k = 1, len
+                    spin(i,j,k) = -1
+                    magnet = magnet + spin(i,j,k)      !this is adding up the magnetic moments
+                end do
+            end do
+        end do
+
+    elseif (start_config == "random") then      !we do this to initialize random spins
+        do i = 1, len 
+            do j = 1, len 
+                do k = 1, len
+                    call random_number(temp)
+                    if (temp<0.5) then
+                        spin(i,j,k) = -1
+                    else
+                        spin(i,j,k) = 1
+                    end if
+                    magnet = magnet + spin(i,j,k)      !this is adding up the magnetic moments
+                end do
+            end do
+        end do
+
+    end if
 
     energy = lattice_energy(spin,len,1.0)
     magnet_list(index) = magnet
@@ -102,13 +133,14 @@ program ising_model     !make this into a subroutine for easy use
         energy_list(index) = energy
     end do
 
-    open(unit=1, file="E:\computational_physics\Module_3_out\energy_values.dat")
+    open(unit=unit_num, file=path)
     do i = 1, index
-        write(1,*) i, " - ", energy_list(i), " - ", magnet_list(i)
+        write(unit_num,*) i, " - ", magnet_list(i), " - ", magnet_list(i)/num_spin, " - ", &
+        energy_list(i), " - ", energy_list(i)/num_spin
     end do
-    close(1)
+    close(unit_num)
 
-end program ising_model
+end subroutine ising_model
 
 
 function lattice_energy(lattice_spin, length, j_ising)  !this calculates the energy of the entire lattice 
