@@ -5,16 +5,17 @@ program question_1
     !integer :: len, niter, unit_num
     !character(len=*) :: path
 
-    call ising_model(20, 1.0, 60.0, 10**5, "minus", 1, "E:\computational_physics\Module_3_out\question_1_data.dat")
+    call ising_model(10, 1.0, 60.0, 10**5, "plus", 1, "E:\computational_physics\Module_3_out\question_1_data.dat")
     call ising_model(10, 1.0, 1.0, 10**5, "plus", 2, "E:\computational_physics\Module_3_out\question_2_data.dat")
     call ising_model(10, 1.0, 0.001, 10**5, "plus", 3, "E:\computational_physics\Module_3_out\question_3_data.dat")
-    call ising_model(10, 1.0, 60.0, 10**5, "random", 4, "E:\computational_physics\Module_3_out\question_4_data.dat")
-    call ising_model(10, 1.0, 0.001, 10**5, "random", 5, "E:\computational_physics\Module_3_out\question_5_data.dat")
+    !call ising_model(10, 1.0, 60.0, 10**5, "random", 4, "E:\computational_physics\Module_3_out\question_4_data.dat")
+    !call ising_model(10, 1.0, 0.001, 10**5, "random", 5, "E:\computational_physics\Module_3_out\question_5_data.dat")
 
 
 end program question_1
 
 
+!this model uses only the nearest neighbours
 subroutine ising_model(len, j_ising, kt, niter, start_config, unit_num, path)
     implicit none 
 
@@ -75,7 +76,7 @@ subroutine ising_model(len, j_ising, kt, niter, start_config, unit_num, path)
     energy = lattice_energy(spin,len,1.0)
     magnet_list(index) = magnet
     energy_list(index) = energy
-
+print*, energy/num_spin
 
     !now we flip spins and keep the spin, or discard it with a probability ~ exp(-x)
 
