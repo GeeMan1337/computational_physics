@@ -5,15 +5,15 @@ program questions
     !integer :: len, niter, unit_num
     !character(len=*) :: path
 
-    call ising_model(10, 1.0, 9.0, 10**5, "plus", 1, "E:\computational_physics\Module_3_out\question_1_data.dat")
-    !call ising_model(10, 1.0, 3.0, 10**5, "plus", 2, "E:\computational_physics\Module_3_out\question_2_data.dat")
-    !call ising_model(10, 1.0, 0.1, 10**5, "plus", 3, "E:\computational_physics\Module_3_out\question_3_data.dat")
+    call ising_model(5, 1.0, 0.1, 10**5, "random", 1, "E:\computational_physics\Module_3_out\question_1_data.dat")
+    call ising_model(5, 1.0, 0.1, 10**5, "random", 2, "E:\computational_physics\Module_3_out\question_2_data.dat")
+    call ising_model(5, 1.0, 0.1, 10**5, "random", 3, "E:\computational_physics\Module_3_out\question_3_data.dat")
 
-    call ising_model_2(10, 1.0, 9.0, 10**5, "plus", 4, "E:\computational_physics\Module_3_out\question_4_data.dat")
+    !call ising_model_2(10, 1.0, 9.0, 10**5, "plus", 4, "E:\computational_physics\Module_3_out\question_4_data.dat")
     !call ising_model_2(10, 1.0, 3.0, 10**5, "plus", 5, "E:\computational_physics\Module_3_out\question_5_data.dat")
     !call ising_model_2(10, 1.0, 0.1, 10**5, "plus", 6, "E:\computational_physics\Module_3_out\question_6_data.dat")
 
-    call ising_model_3(10, 1.0, 9.0, 10**5, "plus", 7, "E:\computational_physics\Module_3_out\question_7_data.dat")
+    !call ising_model_3(10, 1.0, 9.0, 10**5, "plus", 7, "E:\computational_physics\Module_3_out\question_7_data.dat")
     !call ising_model_3(10, 1.0, 3.0, 10**5, "plus", 8, "E:\computational_physics\Module_3_out\question_8_data.dat")
     !call ising_model_3(10, 1.0, 0.1, 10**5, "plus", 9, "E:\computational_physics\Module_3_out\question_9_data.dat")
 
@@ -79,7 +79,7 @@ subroutine ising_model(len, j_ising, kt, niter, start_config, unit_num, path)
 
     end if
 
-    energy = lattice_energy(spin,len,1.0)
+    energy = lattice_energy(spin,len,j_ising)
     magnet_list(index) = magnet
     energy_list(index) = energy
 print*, energy/num_spin
@@ -89,12 +89,11 @@ print*, energy/num_spin
     do i = 1, niter !we do niter number of monte carlo steps (a single step is explained in the comment below)
         index = index + 1
         do j = 1, num_spin  !when all the j's are done, it amounts to one monte carlo step
-            !index = index + 1
 
             call random_number(temp_2)
             call random_number(temp_3)
             call random_number(temp_4)
-            temp_2 = int(temp_2*len + 1); temp_3 = int(temp_3*len + 1); temp_4 = int(temp_4*len + 1)
+            temp_2 = temp_2*len + 1; temp_3 = temp_3*len + 1; temp_4 = temp_4*len + 1
 
             temp = 0        !temp is the initial energy before flip
             temp = temp &
@@ -112,18 +111,16 @@ print*, energy/num_spin
             if (config_energy - temp <= 0) then !this condition is energetically favourabale 
                 energy = energy + (config_energy - temp)
                 magnet = magnet + (2*spin(int(temp_2),int(temp_3),int(temp_4)))
-                !magnet_list(index) = magnet
-                !energy_list(index) = energy
+                
             else
                 call random_number(temp_5)  !here final energy is more than the initial
                 if (exp(-(config_energy-temp)/kt) > temp_5) then !we only accept the spin change with some probability
                     energy = energy + (config_energy - temp)
                     magnet = magnet + (2*spin(int(temp_2),int(temp_3),int(temp_4)))
-                    !magnet_list(index) = magnet
-                    !energy_list(index) = energy
                 else    !we revert to the initial spin if we fail this test
                     spin(int(temp_2),int(temp_3),int(temp_4)) = -spin(int(temp_2),int(temp_3),int(temp_4))
                 end if
+            
             end if
         end do
         magnet_list(index) = magnet
@@ -208,6 +205,7 @@ print*, energy/num_spin
 
     do i = 1, niter !we do niter number of monte carlo steps (a single step is explained in the comment below)
         index = index + 1
+        call random_seed()
         do j = 1, num_spin  !when all the j's are done, it amounts to one monte carlo step
             !index = index + 1
 
@@ -216,7 +214,7 @@ print*, energy/num_spin
             call random_number(temp_4)
             temp_2 = int(temp_2*len + 1); temp_3 = int(temp_3*len + 1); temp_4 = int(temp_4*len + 1)
 
-            temp = 0        !temp is the initial energy before flip
+            temp = 0        !temp is the energy before flip
             temp = temp &
             - j_ising*spin(int(temp_2),int(temp_3),int(temp_4)) &
             *sum_1_neighbour(len,spin,int(temp_2),int(temp_3),int(temp_4)) &
@@ -227,7 +225,7 @@ print*, energy/num_spin
             !flipping a random spin
             spin(int(temp_2),int(temp_3),int(temp_4)) = -spin(int(temp_2),int(temp_3),int(temp_4))
             
-            config_energy = 0
+            config_energy = 0       !this is energy after flip
             config_energy = config_energy &
             - j_ising*spin(int(temp_2),int(temp_3),int(temp_4)) &
             *sum_1_neighbour(len,spin,int(temp_2),int(temp_3),int(temp_4)) &
