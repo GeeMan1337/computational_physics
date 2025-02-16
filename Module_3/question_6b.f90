@@ -4,11 +4,14 @@ program questions
     !!! avg_magnet, avg_magnet_abs, chi, chi_abs, avg_energy, heat_cap, binders_cum
     integer :: i
     real :: answers(7)
-    real :: temp, temp_2, temp_3, iterations
+    real :: temp, temp_2, temp_3
+    integer :: iterations
 
     !L = 9 -------------------------------------------
     temp = 0; temp_2 = 0; temp_3 = 0
-    do i = 1, 20
+    iterations = 1
+    
+    do i = 1, iterations
         call ising_model(9, 1.0, 3.9, 50000, "random", answers, 1, "dont write")
         temp = temp + answers(1)/(9**3)
         temp_2 = temp_2 + answers(2)/(9**3)
@@ -19,7 +22,7 @@ program questions
     temp_2 = temp_2/iterations
     temp_3 = temp_3/iterations
 
-    print *, "For L = 8"
+    print *, "For L = 9"
     print *, "The instantaneous magnetisation per spin fluctuates around the value:", temp
     print *, "The instantaneous magnetisation (abs value) per spin fluctuates around the value:", temp_2
     print *, "The instantaneous energy per spin fluctuates around the value:", temp_3

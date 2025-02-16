@@ -8,16 +8,16 @@ program questions
 
     temp = 0; temp_2 = 0; temp_3 = 0
 
-    do i = 1, 20
+    do i = 1, 1
         call ising_model(10, 1.0, 3.9, 50000, "random", answers, 1, "dont write")
         temp = temp + answers(1)/1000
         temp_2 = temp_2 + answers(2)/1000
         temp_3 = temp_3 + answers(5)/1000
     end do
 
-    temp = temp/20
-    temp_2 = temp_2/20
-    temp_3 = temp_3/20
+    temp = temp
+    temp_2 = temp_2
+    temp_3 = temp_3
 
     print *, " "
     print *, "The instantaneous magnetisation per spin fluctuates around the value:", temp

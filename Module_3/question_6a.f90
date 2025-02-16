@@ -4,11 +4,14 @@ program questions
     !!! avg_magnet, avg_magnet_abs, chi, chi_abs, avg_energy, heat_cap, binders_cum
     integer :: i
     real :: answers(7)
-    real :: temp, temp_2, temp_3, iterations
+    real :: temp, temp_2, temp_3
+    integer :: iterations
 
     !L = 8 -------------------------------------------
     temp = 0; temp_2 = 0; temp_3 = 0
-    do i = 1, 10
+    iterations = 1
+    
+    do i = 1, 1
         call ising_model(8, 1.0, 3.9, 50000, "random", answers, 1, "dont write")
         temp = temp + answers(1)/(8**3)
         temp_2 = temp_2 + answers(2)/(8**3)

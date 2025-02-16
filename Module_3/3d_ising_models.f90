@@ -1,39 +1,21 @@
-program questions
-    implicit none
+!this model uses only the nearest neighbours. Models with more neighours below
 
-    !real :: j_ising, kt, start_config
-    !integer :: len, niter, unit_num
-    !character(len=*) :: path
+!!! return_values = [avg_magnet, avg_magnet_abs, chi, chi_abs, avg_energy, heat_cap, binders_cum]
 
-    call ising_model(5, 1.0, 0.1, 10**5, "random", 1, "E:\computational_physics\Module_3_out\question_1_data.dat")
-    call ising_model(5, 1.0, 0.1, 10**5, "random", 2, "E:\computational_physics\Module_3_out\question_2_data.dat")
-    call ising_model(5, 1.0, 0.1, 10**5, "random", 3, "E:\computational_physics\Module_3_out\question_3_data.dat")
-
-    !call ising_model_2(10, 1.0, 9.0, 10**5, "plus", 4, "E:\computational_physics\Module_3_out\question_4_data.dat")
-    !call ising_model_2(10, 1.0, 3.0, 10**5, "plus", 5, "E:\computational_physics\Module_3_out\question_5_data.dat")
-    !call ising_model_2(10, 1.0, 0.1, 10**5, "plus", 6, "E:\computational_physics\Module_3_out\question_6_data.dat")
-
-    !call ising_model_3(10, 1.0, 9.0, 10**5, "plus", 7, "E:\computational_physics\Module_3_out\question_7_data.dat")
-    !call ising_model_3(10, 1.0, 3.0, 10**5, "plus", 8, "E:\computational_physics\Module_3_out\question_8_data.dat")
-    !call ising_model_3(10, 1.0, 0.1, 10**5, "plus", 9, "E:\computational_physics\Module_3_out\question_9_data.dat")
-
-end program questions
-
-
-!this model uses only the nearest neighbours
-subroutine ising_model(len, j_ising, kt, niter, start_config, unit_num, path)
+subroutine ising_model(len, j_ising, kt, niter, start_config, return_values, unit_num, path)
     implicit none 
 
     integer :: i, j, k      !iterating variables
     real :: temp, temp_2, temp_3, temp_4, temp_5
-    real :: avg_energy, avg_magnet, heat_cap, chi       !Macroscopic observables
-    real :: energy, magnet, energy_per_spin, magnet_per_spin, config_energy !magnet is the total magnetic moment of the entire lattice
-    real :: scaled_energy, scaled_magnet
+    real :: avg_magnet, avg_magnet_abs, chi, chi_abs, avg_energy, heat_cap, binders_cum !Macroscopic observables
+    real :: energy, magnet, config_energy !magnet is the total magnetic moment of the entire lattice
     integer :: len, niter, num_spin, index, unit_num
     real :: j_ising, kt     !kt is temperature multiplied by boltzmann const. 
     integer :: spin(len, len, len)       !3D lattice with spins
-    real :: energy_list(niter*(len**3)+1), magnet_list(niter*(len**3)+1)
+    real :: energy_list(niter+1), magnet_list(niter+1)
     character(len=*) :: start_config, path
+    integer :: relax_time, nstat
+    real :: return_values(7)
 
     real :: lattice_energy      !these are function variables
     integer :: sum_1_neighbour
@@ -82,7 +64,6 @@ subroutine ising_model(len, j_ising, kt, niter, start_config, unit_num, path)
     energy = lattice_energy(spin,len,j_ising)
     magnet_list(index) = magnet
     energy_list(index) = energy
-print*, energy/num_spin
 
     !now we flip spins and keep the spin, or discard it with a probability ~ exp(-x)
 
@@ -95,17 +76,14 @@ print*, energy/num_spin
             call random_number(temp_4)
             temp_2 = temp_2*len + 1; temp_3 = temp_3*len + 1; temp_4 = temp_4*len + 1
 
-            temp = 0        !temp is the initial energy before flip
-            temp = temp &
-            - j_ising*spin(int(temp_2),int(temp_3),int(temp_4)) &
+            !temp is the initial energy before flip
+            temp = - j_ising*spin(int(temp_2),int(temp_3),int(temp_4)) &
             *sum_1_neighbour(len,spin,int(temp_2),int(temp_3),int(temp_4)) 
             
             !flipping a random spin
             spin(int(temp_2),int(temp_3),int(temp_4)) = -spin(int(temp_2),int(temp_3),int(temp_4))
-            
-            config_energy = 0
-            config_energy = config_energy &
-            - j_ising*spin(int(temp_2),int(temp_3),int(temp_4)) &
+ 
+            config_energy = - j_ising*spin(int(temp_2),int(temp_3),int(temp_4)) &
             *sum_1_neighbour(len,spin,int(temp_2),int(temp_3),int(temp_4))
 
             if (config_energy - temp <= 0) then !this condition is energetically favourabale 
@@ -127,12 +105,44 @@ print*, energy/num_spin
         energy_list(index) = energy
     end do
 
-    open(unit=unit_num, file=path)
-    do i = 1, index
-        write(unit_num,*) i, " - ", magnet_list(i), " - ", magnet_list(i)/num_spin, " - ", &
-        energy_list(i), " - ", energy_list(i)/num_spin
+    if (path == "dont write" .or. path == "don't write") then
+        goto 1
+
+    else
+        open(unit=unit_num, file=path)
+        do i = 1, index
+            write(unit_num,*) i, " , ", magnet_list(i), " , ", magnet_list(i)/num_spin, " , ", &
+            energy_list(i), " , ", energy_list(i)/num_spin
+        end do
+        close(unit_num)
+
+    end if
+
+    !this section calculates the averages for the entire lattice
+1    temp = 0; temp_2 = 0; temp_3 = 0; temp_4 = 0
+    avg_energy = 0; avg_magnet = 0; avg_magnet_abs = 0
+    nstat = 10000
+    relax_time = 1
+
+    do i = nstat, index, relax_time
+        temp = temp + 1
+        avg_energy = avg_energy + energy_list(i)        !this will be <E>
+        avg_magnet = avg_magnet + magnet_list(i)        !this will be <M>
+        avg_magnet_abs = avg_magnet_abs + abs(magnet_list(i))   !this will be <abs(M)> 
+        temp_2 = temp_2 + energy_list(i)**2     !this will calculate <E^2>
+        temp_3 = temp_3 + magnet_list(i)**2     !this will calculate <M^2>
+        temp_4 = temp_4 + magnet_list(i)**4     !this will calculate <M^4>
     end do
-    close(unit_num)
+
+    avg_energy = avg_energy/temp
+    avg_magnet = avg_magnet/temp
+    avg_magnet_abs = avg_magnet_abs/temp
+    chi = (temp_3/temp - avg_magnet**2)/kt
+    chi_abs = (temp_3/temp - avg_magnet_abs**2)/kt
+    heat_cap = (temp_2/temp - avg_energy**2)/(kt**2)
+    binders_cum = (temp_4/temp)/(3*(temp_3/temp)**2)
+
+    return_values = [avg_magnet, avg_magnet_abs, chi, chi_abs, avg_energy, heat_cap, binders_cum]
 
 end subroutine ising_model
 
@@ -143,14 +153,15 @@ subroutine ising_model_2(len, j_ising, kt, niter, start_config, unit_num, path)
 
     integer :: i, j, k      !iterating variables
     real :: temp, temp_2, temp_3, temp_4, temp_5
-    real :: avg_energy, avg_magnet, heat_cap, chi       !Macroscopic observables
-    real :: energy, magnet, energy_per_spin, magnet_per_spin, config_energy !magnet is the total magnetic moment of the entire lattice
-    real :: scaled_energy, scaled_magnet
+    real :: avg_magnet, avg_magnet_abs, chi, chi_abs, avg_energy, heat_cap, binders_cum !Macroscopic observables
+    real :: energy, magnet, config_energy !magnet is the total magnetic moment of the entire lattice
     integer :: len, niter, num_spin, index, unit_num
     real :: j_ising, kt     !kt is temperature multiplied by boltzmann const. 
     integer :: spin(len, len, len)       !3D lattice with spins
-    real :: energy_list(niter*(len**3)+1), magnet_list(niter*(len**3)+1)
+    real :: energy_list(niter+1), magnet_list(niter+1)
     character(len=*) :: start_config, path
+    integer :: relax_time, nstat
+    real :: return_values(7)
 
     real :: lattice_energy_2      !these are function variables
     integer :: sum_1_neighbour, sum_2_neighbour
@@ -196,10 +207,9 @@ subroutine ising_model_2(len, j_ising, kt, niter, start_config, unit_num, path)
 
     end if
 
-    energy = lattice_energy_2(spin,len,1.0)
+    energy = lattice_energy_2(spin,len,j_ising)
     magnet_list(index) = magnet
     energy_list(index) = energy
-print*, energy/num_spin
 
     !now we flip spins and keep the spin, or discard it with a probability ~ exp(-x)
 
@@ -235,30 +245,61 @@ print*, energy/num_spin
             if (config_energy - temp <= 0) then !this condition is energetically favourabale 
                 energy = energy + (config_energy - temp)
                 magnet = magnet + (2*spin(int(temp_2),int(temp_3),int(temp_4)))
-                !magnet_list(index) = magnet
-                !energy_list(index) = energy
+
             else
                 call random_number(temp_5)  !here final energy is more than the initial
                 if (exp(-(config_energy-temp)/kt) > temp_5) then !we only accept the spin change with some probability
                     energy = energy + (config_energy - temp)
                     magnet = magnet + (2*spin(int(temp_2),int(temp_3),int(temp_4)))
-                    !magnet_list(index) = magnet
-                    !energy_list(index) = energy
+
                 else    !we revert to the initial spin if we fail this test
                     spin(int(temp_2),int(temp_3),int(temp_4)) = -spin(int(temp_2),int(temp_3),int(temp_4))
                 end if
+            
             end if
         end do
         magnet_list(index) = magnet
         energy_list(index) = energy
     end do
 
-    open(unit=unit_num, file=path)
-    do i = 1, index
-        write(unit_num,*) i, " - ", magnet_list(i), " - ", magnet_list(i)/num_spin, " - ", &
-        energy_list(i), " - ", energy_list(i)/num_spin
+    if (path == "dont write" .or. path == "don't write") then
+        goto 2
+
+    else
+        open(unit=unit_num, file=path)
+        do i = 1, index
+            write(unit_num,*) i, " , ", magnet_list(i), " , ", magnet_list(i)/num_spin, " , ", &
+            energy_list(i), " , ", energy_list(i)/num_spin
+        end do
+        close(unit_num)
+
+    end if
+
+    !this section calculates the averages for the entire lattice
+2    temp = 0; temp_2 = 0; temp_3 = 0; temp_4 = 0
+    avg_energy = 0; avg_magnet = 0; avg_magnet_abs = 0
+    nstat = 10000
+    relax_time = 1
+
+    do i = nstat, index, relax_time
+        temp = temp + 1
+        avg_energy = avg_energy + energy_list(i)        !this will be <E>
+        avg_magnet = avg_magnet + magnet_list(i)        !this will be <M>
+        avg_magnet_abs = avg_magnet_abs + abs(magnet_list(i))   !this will be <abs(M)> 
+        temp_2 = temp_2 + energy_list(i)**2     !this will calculate <E^2>
+        temp_3 = temp_3 + magnet_list(i)**2     !this will calculate <M^2>
+        temp_4 = temp_4 + magnet_list(i)**4     !this will calculate <M^4>
     end do
-    close(unit_num)
+
+    avg_energy = avg_energy/temp
+    avg_magnet = avg_magnet/temp
+    avg_magnet_abs = avg_magnet_abs/temp
+    chi = (temp_3/temp - avg_magnet**2)/kt
+    chi_abs = (temp_3/temp - avg_magnet_abs**2)/kt
+    heat_cap = (temp_2/temp - avg_energy**2)/(kt**2)
+    binders_cum = (temp_4/temp)/(3*(temp_3/temp)**2)
+
+    return_values = [avg_magnet, avg_magnet_abs, chi, chi_abs, avg_energy, heat_cap, binders_cum]
 
 end subroutine ising_model_2
 
@@ -269,14 +310,15 @@ subroutine ising_model_3(len, j_ising, kt, niter, start_config, unit_num, path)
 
     integer :: i, j, k      !iterating variables
     real :: temp, temp_2, temp_3, temp_4, temp_5
-    real :: avg_energy, avg_magnet, heat_cap, chi       !Macroscopic observables
-    real :: energy, magnet, energy_per_spin, magnet_per_spin, config_energy !magnet is the total magnetic moment of the entire lattice
-    real :: scaled_energy, scaled_magnet
+    real :: avg_magnet, avg_magnet_abs, chi, chi_abs, avg_energy, heat_cap, binders_cum !Macroscopic observables
+    real :: energy, magnet, config_energy !magnet is the total magnetic moment of the entire lattice
     integer :: len, niter, num_spin, index, unit_num
     real :: j_ising, kt     !kt is temperature multiplied by boltzmann const. 
     integer :: spin(len, len, len)       !3D lattice with spins
-    real :: energy_list(niter*(len**3)+1), magnet_list(niter*(len**3)+1)
+    real :: energy_list(niter+1), magnet_list(niter+1)
     character(len=*) :: start_config, path
+    integer :: relax_time, nstat
+    real :: return_values(7)
 
     real :: lattice_energy_3      !these are function variables
     integer :: sum_1_neighbour, sum_2_neighbour, sum_3_neighbour
@@ -322,10 +364,9 @@ subroutine ising_model_3(len, j_ising, kt, niter, start_config, unit_num, path)
 
     end if
 
-    energy = lattice_energy_3(spin,len,1.0)
+    energy = lattice_energy_3(spin,len,j_ising)
     magnet_list(index) = magnet
     energy_list(index) = energy
-print*, energy/num_spin
 
     !now we flip spins and keep the spin, or discard it with a probability ~ exp(-x)
 
@@ -347,7 +388,6 @@ print*, energy/num_spin
             *sum_2_neighbour(len,spin,int(temp_2),int(temp_3),int(temp_4)) &
             - j_ising*(1.0/(3.0**1.5))*spin(int(temp_2),int(temp_3),int(temp_4)) &
             *sum_3_neighbour(len,spin,int(temp_2),int(temp_3),int(temp_4))
-
             
             !flipping a random spin
             spin(int(temp_2),int(temp_3),int(temp_4)) = -spin(int(temp_2),int(temp_3),int(temp_4))
@@ -364,30 +404,60 @@ print*, energy/num_spin
             if (config_energy - temp <= 0) then !this condition is energetically favourabale 
                 energy = energy + (config_energy - temp)
                 magnet = magnet + (2*spin(int(temp_2),int(temp_3),int(temp_4)))
-                !magnet_list(index) = magnet
-                !energy_list(index) = energy
+
             else
                 call random_number(temp_5)  !here final energy is more than the initial
                 if (exp(-(config_energy-temp)/kt) > temp_5) then !we only accept the spin change with some probability
                     energy = energy + (config_energy - temp)
                     magnet = magnet + (2*spin(int(temp_2),int(temp_3),int(temp_4)))
-                    !magnet_list(index) = magnet
-                    !energy_list(index) = energy
                 else    !we revert to the initial spin if we fail this test
                     spin(int(temp_2),int(temp_3),int(temp_4)) = -spin(int(temp_2),int(temp_3),int(temp_4))
                 end if
+            
             end if
         end do
         magnet_list(index) = magnet
         energy_list(index) = energy
     end do
 
-    open(unit=unit_num, file=path)
-    do i = 1, index
-        write(unit_num,*) i, " - ", magnet_list(i), " - ", magnet_list(i)/num_spin, " - ", &
-        energy_list(i), " - ", energy_list(i)/num_spin
+    if (path == "dont write" .or. path == "don't write") then
+        goto 3
+
+    else
+        open(unit=unit_num, file=path)
+        do i = 1, index
+            write(unit_num,*) i, " , ", magnet_list(i), " , ", magnet_list(i)/num_spin, " , ", &
+            energy_list(i), " , ", energy_list(i)/num_spin
+        end do
+        close(unit_num)
+
+    end if
+
+    !this section calculates the averages for the entire lattice
+3    temp = 0; temp_2 = 0; temp_3 = 0; temp_4 = 0
+    avg_energy = 0; avg_magnet = 0; avg_magnet_abs = 0
+    nstat = 10000
+    relax_time = 1
+
+    do i = nstat, index, relax_time
+        temp = temp + 1
+        avg_energy = avg_energy + energy_list(i)        !this will be <E>
+        avg_magnet = avg_magnet + magnet_list(i)        !this will be <M>
+        avg_magnet_abs = avg_magnet_abs + abs(magnet_list(i))   !this will be <abs(M)> 
+        temp_2 = temp_2 + energy_list(i)**2     !this will calculate <E^2>
+        temp_3 = temp_3 + magnet_list(i)**2     !this will calculate <M^2>
+        temp_4 = temp_4 + magnet_list(i)**4     !this will calculate <M^4>
     end do
-    close(unit_num)
+
+    avg_energy = avg_energy/temp
+    avg_magnet = avg_magnet/temp
+    avg_magnet_abs = avg_magnet_abs/temp
+    chi = (temp_3/temp - avg_magnet**2)/kt
+    chi_abs = (temp_3/temp - avg_magnet_abs**2)/kt
+    heat_cap = (temp_2/temp - avg_energy**2)/(kt**2)
+    binders_cum = (temp_4/temp)/(3*(temp_3/temp)**2)
+
+    return_values = [avg_magnet, avg_magnet_abs, chi, chi_abs, avg_energy, heat_cap, binders_cum]
 
 end subroutine ising_model_3
 
@@ -459,7 +529,7 @@ function lattice_energy_3(lattice_spin, length, j_ising)  !this calculates the e
     real, intent(in) ::j_ising
     real :: lattice_energy_3
 
-    integer :: sum_1_neighbour, sum_2_neighbour      !these are function variables
+    integer :: sum_1_neighbour, sum_2_neighbour, sum_3_neighbour      !these are function variables
 
     lattice_energy_3 = 0
     
@@ -470,7 +540,7 @@ function lattice_energy_3(lattice_spin, length, j_ising)  !this calculates the e
                 lattice_energy_3 = lattice_energy_3 & 
                 - j_ising*lattice_spin(i,j,k)*sum_1_neighbour(length,lattice_spin,i,j,k) &
                 - j_ising*(1.0/(2.0**1.5))*(lattice_spin(i,j,k)*sum_2_neighbour(length,lattice_spin,i,j,k)) &
-                - j_ising*(1.0/(3.0**1.5))*(lattice_spin(i,j,k)*sum_2_neighbour(length,lattice_spin,i,j,k))
+                - j_ising*(1.0/(3.0**1.5))*(lattice_spin(i,j,k)*sum_3_neighbour(length,lattice_spin,i,j,k))
 
             end do
         end do

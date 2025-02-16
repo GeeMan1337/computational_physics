@@ -1,30 +1,7 @@
-program questions
-    implicit none
-
-    integer :: i, j, k
-    real :: answers(7)
-    real :: temp, temp_2
-
-    !question 3
-    temp = 0; temp_2 = 0
-
-    do i = 1, 20
-        call ising_model(10, 1.0, 4.9, 50000, "random", answers, 1, "dont write")
-        temp = temp + answers(1)/1000
-        temp_2 = temp_2 + answers(3)/1000
-    end do
-
-    temp = temp/20
-
-    print *, "The instantaneous magnetisation per spin fluctuates around the value:", temp
-    print *, "The instantaneous energy per spin fluctuates around the value:", temp_2
-
-    call ising_model(10, 1.0, 4.9, 50000, "random", answers, 1, "E:\computational_physics\Module_3_out\question_3_data.dat")
-
-end program questions
-
-
 !this model uses only the nearest neighbours
+
+!!! return_values = [avg_magnet, avg_magnet_abs, chi, chi_abs, avg_energy, heat_cap, binders_cum]
+
 subroutine ising_model(len, j_ising, kt, niter, start_config, return_values, unit_num, path)
     implicit none 
 
@@ -35,7 +12,7 @@ subroutine ising_model(len, j_ising, kt, niter, start_config, return_values, uni
     integer :: len, niter, num_spin, index, unit_num
     real :: j_ising, kt     !kt is temperature multiplied by boltzmann const. 
     integer :: spin(len, len, len)       !3D lattice with spins
-    real :: energy_list(niter*(len**3)+1), magnet_list(niter*(len**3)+1)
+    real :: energy_list(niter+1), magnet_list(niter+1)
     character(len=*) :: start_config, path
     integer :: relax_time, nstat
     real :: return_values(7)
