@@ -180,7 +180,7 @@ subroutine ising_model(len, j_ising, kt, niter, start_config, return_values, uni
     chi = (temp_3/temp - avg_magnet**2)/kt
     chi_abs = (temp_3/temp - avg_magnet_abs**2)/kt
     heat_cap = (temp_2/temp - avg_energy**2)/(kt**2)
-    binders_cum = (temp_4/temp)/(3*(temp_3/temp)**2)
+    binders_cum = 1 - (temp_4/temp)/(3*(temp_3/temp)**2)
 
     return_values = [avg_magnet, avg_magnet_abs, chi, chi_abs, avg_energy, heat_cap, binders_cum]
 
