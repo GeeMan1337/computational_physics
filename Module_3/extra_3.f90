@@ -5,13 +5,13 @@ program questions
     integer :: i, len
     real :: answers(7)
 
-    !L = 15 for third neighbouring spin -------------------------------------------
-    len = 15
+    !L = 12 for third neighbouring spin -------------------------------------------
+    len = 12
 
-    open(unit=1, file="E:\computational_physics\Module_3_out\extra_3_data.dat")
+    open(unit=1, file="E:\computational_physics\Module_3_out\extra_5_data.dat")
 
-    do i = 470, 380, -20
-        call ising_model(len, 1.0, i/100.0, 101000, "random", answers, 1, "dont write")
+    do i = 1100, 800, -2
+        call ising_model_3(len, 1.0, i/100.0, 10**5, "random", answers, 1, "dont write")
         write(1,*) i/100.0, ",", answers(1)/(len**3), ",", answers(2)/(len**3), ",", &
         answers(3), ",", answers(4), ",", answers(5)/(len**3), ",", answers(6), ",", answers(7)
 
@@ -19,6 +19,21 @@ program questions
     end do
     
     close(1)
+
+    !L = 13 for third neighbouring spin -------------------------------------------
+    len = 13
+
+    open(unit=2, file="E:\computational_physics\Module_3_out\extra_6_data.dat")
+
+    do i = 1100, 800, -2
+        call ising_model_3(len, 1.0, i/100.0, 10**5, "random", answers, 1, "dont write")
+        write(2,*) i/100.0, ",", answers(1)/(len**3), ",", answers(2)/(len**3), ",", &
+        answers(3), ",", answers(4), ",", answers(5)/(len**3), ",", answers(6), ",", answers(7)
+
+        print *, "temperature =", i/100.0, "model = 3"
+    end do
+    
+    close(2)
 
 end program questions
 
@@ -173,7 +188,7 @@ end subroutine ising_model
 
 
 !this model has upto second nearest neighbours
-subroutine ising_model_2(len, j_ising, kt, niter, start_config, unit_num, path)
+subroutine ising_model_2(len, j_ising, kt, niter, start_config, return_values, unit_num, path)
     implicit none 
 
     integer :: i, j, k      !iterating variables
@@ -330,7 +345,7 @@ end subroutine ising_model_2
 
 
 !this model has upto third nearest neighbours
-subroutine ising_model_3(len, j_ising, kt, niter, start_config, unit_num, path)
+subroutine ising_model_3(len, j_ising, kt, niter, start_config, return_values, unit_num, path)
     implicit none 
 
     integer :: i, j, k      !iterating variables
