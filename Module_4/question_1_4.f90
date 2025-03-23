@@ -83,7 +83,7 @@ subroutine modified_euler_method(step_size, start_x, end_x, y_initial, unit_num,
     real*8 :: temp, temp_2, temp_3
     real*8 :: y_val
     real*8 :: step_size, start_x, end_x, y_initial
-    real*8 :: x_mid, y_mid
+    real*8 :: y_mid
     real*8, allocatable :: x_values_list(:), y_values_list(:)
     real*8 :: ode_rhs       !these are function variables
 
@@ -140,7 +140,7 @@ subroutine improved_euler_method(step_size, start_x, end_x, y_initial, unit_num,
     real*8 :: temp, temp_2, temp_3
     real*8 :: y_val
     real*8 :: step_size, start_x, end_x, y_initial
-    real*8 :: x_step, y_step
+    real*8 :: y_step
     real*8, allocatable :: x_values_list(:), y_values_list(:)
     real*8 :: ode_rhs       !these are function variables
 
@@ -188,7 +188,7 @@ end subroutine improved_euler_method
 subroutine rk_4(step_size, start_x, end_x, y_initial, unit_num, path)
     implicit none
 
-    integer :: i, count, unit_num
+    integer :: i, j, count, unit_num
     character(len=*) :: path
     real*8 :: temp, temp_2, temp_3
     real*8 :: y_val
@@ -236,6 +236,9 @@ subroutine rk_4(step_size, start_x, end_x, y_initial, unit_num, path)
 
     do i = 1, count
         write(unit_num,"(f10.5, a3, f10.5)") x_values_list(i), " , ", y_values_list(i)
+        do j = 1, 9
+            write(unit_num, *) " "
+        end do
     end do
 
     close(unit_num)
