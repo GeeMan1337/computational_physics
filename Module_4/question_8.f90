@@ -24,7 +24,7 @@ program rk_4_2nd_order_50_equations
 
     integer :: i, j, count
     real*8 :: temp, temp_2, temp_3
-    real*8 :: y_val(50)
+    real*8 :: y_val(50), z_val(50)
     real*8 :: step_size, start_x, end_x
     integer :: left_index, right_index
     real*8 :: y_mid(50), y_mid_better(50), y_step(50), z_mid(50), z_mid_better(50), z_step(50)
@@ -43,11 +43,14 @@ program rk_4_2nd_order_50_equations
     allocate(y_values_list(nint(temp_2 - temp + 1), 50))
     allocate(z_values_list(nint(temp_2 - temp + 1), 50))
 
-    x_values_list(1) = start_x
-    y_values_list = 0.0d0               ! 1st row of y_values_list and z_values_list are the initial conditions
-    y_values_list(1,1) = 0.8d0
-    y_values_list(1,26) = 0.8d0
-    z_values_list = 0.0d0
+    y_val = 0.0d0
+    y_val(1) = 0.8d0
+    y_val(26) = 0.8d0
+    z_val = 0.0d0
+
+    x_values_list(1) = start_x  
+    y_values_list(1,1:50) = y_val   ! 1st row of y_values_list and z_values_list are the initial conditions
+    z_values_list(1,1:50) = z_val
    
     do i = 1, 50
 
@@ -62,64 +65,79 @@ program rk_4_2nd_order_50_equations
             right_index = i+1
         end if
 
-        y_mid(i) = y_values_list(1,i) + (step_size/2)*ode_rhs_1(z_values_list(1,i))
-        z_mid(i) = z_values_list(1,i) + (step_size/2)* &
-                    ode_rhs_2(y_initial(1,left_index),y_initial(1,i),y_initial(1,right_index))
+        y_mid(i) = y_val(i) + (step_size/2)*ode_rhs_1(z_val(i))
+        z_mid(i) = z_val(i) + (step_size/2)* &
+                    ode_rhs_2(y_val(left_index),y_val(i),y_val(right_index))
 
-        y_mid_better = y_initial + (step_size/2)*ode_rhs_1(z_mid)
-        z_mid_better = z_initial + (step_size/2)*ode_rhs_2(y_mid)
+        y_mid_better(i) = y_val(i) + (step_size/2)*ode_rhs_1(z_mid(i))
+        z_mid_better(i) = z_val(i) + (step_size/2)*ode_rhs_2(y_mid(left_index),y_mid(i),y_mid(right_index))
 
-        y_step = y_initial + step_size*ode_rhs_1(z_mid_better)
-        z_step = z_initial + step_size*ode_rhs_2(y_mid_better)
+        y_step(i) = y_val(i) + step_size*ode_rhs_1(z_mid_better(i))
+        z_step(i) = z_val(i) + step_size*ode_rhs_2(y_mid_better(left_index),y_mid_better(i),y_mid_better(right_index))
 
-        y_val = y_initial + step_size*(2*ode_rhs_1(z_mid) + 2*ode_rhs_1(z_mid_better) &
-                                        + ode_rhs_1(z_initial) + ode_rhs_1(z_step))/6
+        y_val(i) = y_val(i) + step_size*(2*ode_rhs_1(z_mid(i)) + 2*ode_rhs_1(z_mid_better(i)) &
+                                        + ode_rhs_1(z_val(i)) + ode_rhs_1(z_step(i)))/6
 
-        z_val = z_initial + step_size*(2*ode_rhs_2(y_mid) + 2*ode_rhs_2(y_mid_better) &
-                                        + ode_rhs_2(y_initial) + ode_rhs_2(y_step))/6
-
-
-
-        x_values_list(2) = start_x + step_size
-        y_values_list(2) = y_val
-        z_values_list(2) = z_val
-
+        z_val(i) = z_val(i) + step_size*(2*ode_rhs_2(y_mid(left_index),y_mid(i),y_mid(right_index)) &
+                                        + 2*ode_rhs_2(y_mid_better(left_index),y_mid_better(i),y_mid_better(right_index)) &
+                                        + ode_rhs_2(y_val(left_index),y_val(i),y_val(right_index)) &
+                                        + ode_rhs_2(y_step(left_index),y_step(i),y_step(right_index)))/6
     end do  
+
+    x_values_list(2) = start_x + step_size
+    y_values_list(2,1:50) = y_val
+    z_values_list(2,1:50) = z_val
 
     count = 2
 
-    do i = nint(temp), nint(temp_2) - 2, nint(temp_3)
-        y_mid = y_val + (step_size/2)*ode_rhs_1(z_val)
-        z_mid = z_val + (step_size/2)*ode_rhs_2(y_val)
+    do j = nint(temp), nint(temp_2) - 2, nint(temp_3)
+        do i = 1, 50
 
-        y_mid_better = y_val + (step_size/2)*ode_rhs_1(z_mid)
-        z_mid_better = z_val + (step_size/2)*ode_rhs_2(y_mid)
-
-        y_step = y_val + step_size*ode_rhs_1(z_mid_better)
-        z_step = z_val + step_size*ode_rhs_2(y_mid_better)
-
-        y_val = y_val + step_size*(2*ode_rhs_1(z_mid) + 2*ode_rhs_1(z_mid_better) &
-                                    + ode_rhs_1(z_val) + ode_rhs_1(z_step))/6
-                                    
-        z_val = z_val + step_size*(2*ode_rhs_2(y_mid) + 2*ode_rhs_2(y_mid_better) &
-                                    + ode_rhs_2(y_val) + ode_rhs_2(y_step))/6
-
+            if (i == 1) then
+                left_index = 50 
+                right_index = 2
+            elseif (i == 50) then
+                left_index = 49 
+                right_index = 1
+            else
+                left_index = i-1
+                right_index = i+1
+            end if
+            
+            y_mid(i) = y_val(i) + (step_size/2)*ode_rhs_1(z_val(i))
+            z_mid(i) = z_val(i) + (step_size/2)* &
+                        ode_rhs_2(y_val(left_index),y_val(i),y_val(right_index))
+    
+            y_mid_better(i) = y_val(i) + (step_size/2)*ode_rhs_1(z_mid(i))
+            z_mid_better(i) = z_val(i) + (step_size/2)*ode_rhs_2(y_mid(left_index),y_mid(i),y_mid(right_index))
+    
+            y_step(i) = y_val(i) + step_size*ode_rhs_1(z_mid_better(i))
+            z_step(i) = z_val(i) + step_size*ode_rhs_2(y_mid_better(left_index),y_mid_better(i),y_mid_better(right_index))
+    
+            y_val(i) = y_val(i) + step_size*(2*ode_rhs_1(z_mid(i)) + 2*ode_rhs_1(z_mid_better(i)) &
+                                            + ode_rhs_1(z_val(i)) + ode_rhs_1(z_step(i)))/6
+    
+            z_val(i) = z_val(i) + step_size*(2*ode_rhs_2(y_mid(left_index),y_mid(i),y_mid(right_index)) &
+                                            + 2*ode_rhs_2(y_mid_better(left_index),y_mid_better(i),y_mid_better(right_index)) &
+                                            + ode_rhs_2(y_val(left_index),y_val(i),y_val(right_index)) &
+                                            + ode_rhs_2(y_step(left_index),y_step(i),y_step(right_index)))/6
+        end do
         count = count + 1
-        x_values_list(count) = start_x + (count - 1)*step_size
-        y_values_list(count) = y_val
-        z_values_list(count) = z_val
-
+        x_values_list(count) = start_x + step_size
+        y_values_list(count,1:50) = y_val
+        z_values_list(count,1:50) = z_val
     end do
 
-    open(file = path, unit = unit_num)
+    open(file = "E:\computational_physics\Module_4_out\question_8.xyz", unit = 10)
 
     do i = 1, count
-        write(unit_num,"(f10.5, a3, f10.5, a3, f10.5, a3, f10.5, a3, f10.5, a3, f10.5)") &
-                    x_values_list(i), " , ", y_values_list(i), &
-                    " , ", z_values_list(i), " , ", kinetic_energy(i), " , ", potential_energy(i), &
-                    " , ", total_energy(i)
+        write(10,*) 50, new_line("a"), "Timestep = ", i-1
+        
+        do j = 1, 50
+            write(10,*) j, 5*sin(2*3.14159265359*j/50), y_values_list(i,j), 5*cos(2*3.14159265359*j/50)
+        end do 
     end do
 
-    close(unit_num)
+    close(10)
 
 end program rk_4_2nd_order_50_equations
