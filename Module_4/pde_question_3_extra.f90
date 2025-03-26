@@ -13,7 +13,7 @@ program laplace_solver_dirichlet_boundary_conditions
    implicit none 
 
    integer :: i, j, flag, count
-   real*8 :: temp_old(34,34), temp_val(34,34)
+   real*8 :: temp_old(68,68), temp_val(68,68)
    real*8 :: x_step, y_step, converge_cond
    real*8 :: rhs_expression      !function variable
 
@@ -22,22 +22,22 @@ program laplace_solver_dirichlet_boundary_conditions
    converge_cond = 0.0001d0
 
    temp_val = 0
-   temp_val(1,1:34) = 3.7
-   temp_val(34,1:34) = 0.4
+   temp_val(1,1:68) = 3.7
+   temp_val(34,1:68) = 0.4
 
-   do i = 1, 34
-      temp_val(i,1) = i*(temp_val(34,1) - temp_val(1,1))/(34 - 1) &
-                     + (temp_val(1,1)*34 - temp_val(34,1)*1)/(34 - 1)
+   do i = 1, 68
+      temp_val(i,1) = i*(temp_val(68,1) - temp_val(1,1))/(68 - 1) &
+                     + (temp_val(1,1)*68 - temp_val(68,1)*1)/(68 - 1)
 
-      temp_val(i,34) = i*(temp_val(34,34) - temp_val(1,34))/(34 - 1) &
-                        + (temp_val(1,34)*34 - temp_val(34,34)*1)/(34 - 1)
+      temp_val(i,68) = i*(temp_val(68,68) - temp_val(1,68))/(68 - 1) &
+                        + (temp_val(1,68)*68 - temp_val(68,68)*1)/(68 - 1)
    end do
 
    temp_old = temp_val
 
-   open(file = "E:\computational_physics\Module_4_out\pde_question_3a.dat", unit = 10)
-   do i = 34, 1, -1
-      write (10,*) temp_val(1:34,i)
+   open(file = "E:\computational_physics\Module_4_out\pde_question_3a_extra.dat", unit = 10)
+   do i = 68, 1, -1
+      write (10,*) temp_val(1:68,i)
    end do
    close(10)
 
@@ -47,14 +47,14 @@ program laplace_solver_dirichlet_boundary_conditions
 
       flag = 1
 
-      do i = 2, 33
-         do j = 2, 33
+      do i = 2, 67
+         do j = 2, 67
             temp_val(i,j) = rhs_expression(temp_val(i-1,j), temp_val(i+1,j), temp_val(i,j+1), temp_val(i,j-1), 1.0d0, 1.0d0)
          end do
       end do
 
-      do i = 1, 34
-         do j = 1, 34
+      do i = 1, 68
+         do j = 1, 68
             if (abs(temp_val(i,j) - temp_old(i,j)) > converge_cond) then
                flag = 0
                go to 99
@@ -72,13 +72,13 @@ program laplace_solver_dirichlet_boundary_conditions
    end do
 
 
-   open(file = "E:\computational_physics\Module_4_out\pde_question_3b.dat", unit = 11)
-   do i = 1, 34
-      write (11,*) temp_val(1:34,i)
+   open(file = "E:\computational_physics\Module_4_out\pde_question_3b_extra.dat", unit = 11)
+   do i = 1, 68
+      write (11,*) temp_val(1:68,i)
    end do
    close(11)
 
    print *, "Number of iterations required =", count
-   print *, new_line("a"), "Temperature(20,20) =", temp_val(20,20)
+   print *, new_line("a"), "Temperature(40,40) =", temp_val(40,40)
 
 end program laplace_solver_dirichlet_boundary_conditions

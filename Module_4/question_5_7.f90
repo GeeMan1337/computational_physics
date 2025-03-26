@@ -118,7 +118,6 @@ subroutine rk_4_2nd_order(step_size, start_x, end_x, y_initial, z_initial, unit_
         potential_energy(count) = -cos(y_values_list(count))
         total_energy(count) = 0.5d0*(z_values_list(count)**2) - cos(y_values_list(count))
 
-
     end do
 
     open(file = path, unit = unit_num)
@@ -131,5 +130,7 @@ subroutine rk_4_2nd_order(step_size, start_x, end_x, y_initial, z_initial, unit_
     end do
 
     close(unit_num)
+
+    print *, "The value of x after 5000 iterations is =", y_values_list(count)
 
 end subroutine rk_4_2nd_order

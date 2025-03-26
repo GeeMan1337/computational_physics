@@ -12,8 +12,8 @@ end function rhs_expression
 program gauss_seidel
     implicit none
 
-    integer :: i, count
-    real*8 :: temp, temp_2, temp_3, flag, converge_cond
+    integer :: i, count, flag
+    real*8 :: temp, temp_2, temp_3, converge_cond
     real*8 :: step_size, start_x, end_x
     real*8, allocatable :: x_val(:), y_val(:), y_old(:)
     real*8 :: rhs_expression  !these are function variables
