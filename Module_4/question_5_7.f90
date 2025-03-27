@@ -132,5 +132,6 @@ subroutine rk_4_2nd_order(step_size, start_x, end_x, y_initial, z_initial, unit_
     close(unit_num)
 
     print *, "The value of x after 5000 iterations is =", y_values_list(count)
+    print *, "x_0, v_0 and dt are", y_initial, z_initial, step_size, new_line("a")
 
 end subroutine rk_4_2nd_order

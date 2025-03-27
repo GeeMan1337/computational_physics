@@ -140,6 +140,7 @@ program rk_4_2nd_order_50_equations
 
     close(10)
 
+    print *, "Number of iterations required =", count
     print *, "Position of particle 1 at the end of t=40 is", y_values_list(count,1)
 
 end program rk_4_2nd_order_50_equations

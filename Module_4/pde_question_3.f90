@@ -78,7 +78,7 @@ program laplace_solver_dirichlet_boundary_conditions
    end do
    close(11)
 
-   print *, "Number of iterations required =", count
+   print *, "Number of iterations required (34 X 34 lattice)=", count
    print *, new_line("a"), "Temperature(20,20) =", temp_val(20,20)
 
 end program laplace_solver_dirichlet_boundary_conditions

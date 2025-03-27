@@ -23,7 +23,7 @@ program laplace_solver_dirichlet_boundary_conditions
 
    temp_val = 0
    temp_val(1,1:68) = 3.7
-   temp_val(34,1:68) = 0.4
+   temp_val(68,1:68) = 0.4
 
    do i = 1, 68
       temp_val(i,1) = i*(temp_val(68,1) - temp_val(1,1))/(68 - 1) &
@@ -78,7 +78,7 @@ program laplace_solver_dirichlet_boundary_conditions
    end do
    close(11)
 
-   print *, "Number of iterations required =", count
+   print *, "Number of iterations required (68 X 68 lattice) =", count
    print *, new_line("a"), "Temperature(40,40) =", temp_val(40,40)
 
 end program laplace_solver_dirichlet_boundary_conditions

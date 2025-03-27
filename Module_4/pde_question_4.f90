@@ -73,7 +73,7 @@ program laplace_solver_neumann_boundary_conditions
     end do
     close(11)
  
-    print *, "Number of iterations required =", count
+    print *, "Number of iterations required (34 X 34 lattice) =", count
     print *, new_line("a"), "Temperature(10,10) =", temp_val(10,10)
 
 

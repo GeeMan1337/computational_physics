@@ -60,7 +60,7 @@ subroutine euler_method(step_size, start_x, end_x, y_initial, unit_num, path)
     open(file = path, unit = unit_num)
 
     do i = 1, count
-        write(unit_num,"(f10.5, a3, f10.5)") x_values_list(i), " , ", y_values_list(i)
+        write(unit_num,"(f10.5, a3, f10.5, a3, f10.5)") x_values_list(i), " , ", tan(x_values_list(i)), " , ", y_values_list(i)
     end do
 
     close(unit_num)
