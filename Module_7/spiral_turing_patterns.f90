@@ -1,4 +1,4 @@
-program spiral_patterns
+program spiral_patterns !uses Fitzhugh Nagumo equations
     implicit none 
 
     integer :: i, j, k
@@ -9,13 +9,16 @@ program spiral_patterns
     real*8 :: dt, h, diff_a, diff_b, alpha, beta   !h= dx =dy  !diff_a and diff_b are diffusion constants
     integer :: num_iter, num_snapshot
 
-    num_iter = 20000; num_snapshot = 100
-    grid_size = 100
-    num_spirals = 4
+    integer :: unit_a, unit_b, num_file
+    character(len=100) :: filename_a, filename_b
 
-    dt = 0.001d0; h = 1.0d0
-    diff_a = 0.5d0; diff_b = 100.0d0
-    alpha = 0.005d0; beta = 5.0d0
+    num_iter = 40000; num_snapshot = 400
+    grid_size = 100
+    num_spirals = 10
+
+    dt = 0.002d0; h = 1.0d0
+    diff_a = 0.30d0; diff_b = 70.0d0
+    alpha = 0.005d0; beta = 3.0d0
 
     allocate(a_grid(grid_size,grid_size))
     allocate(a_grid_old(grid_size,grid_size))
@@ -31,6 +34,22 @@ program spiral_patterns
     end do
 
     a_grid_old = a_grid; b_grid_old = b_grid
+
+    ! writing initial conditions
+    num_file = 0; unit_a = 10; unit_b = 11
+    write(filename_a, '("E:\computational_physics\Module_7_out\spiral_data\spiral_a_", i0 ,".dat")') num_file
+    write(filename_b, '("E:\computational_physics\Module_7_out\spiral_data\spiral_b_", i0 ,".dat")') num_file
+
+    open(unit=unit_a, file=filename_a)
+    open(newunit=unit_b, file=filename_b)
+    do i = 1, grid_size
+        do j = 1, grid_size
+            write(unit_a,*) i, j, a_grid_old(i,j)
+            write(unit_b,*) i, j, b_grid_old(i,j)
+        end do
+    end do
+    close(unit_a)
+    close(unit_b)
 
     do k = 1, num_iter
         do i = 1, grid_size
@@ -53,16 +72,30 @@ program spiral_patterns
                               + dt*beta*(a_grid_old(i,j) - b_grid_old(i,j))
 
             end do
-
-            a_grid_old = a_grid; b_grid_old = b_grid
-
         end do
+        a_grid_old = a_grid; b_grid_old = b_grid
+
+        num_file = k
+
+        if (mod(k, num_snapshot) == 0) then
+
+            write(filename_a, '("E:\computational_physics\Module_7_out\spiral_data\spiral_a_", i0 ,".dat")') num_file
+            write(filename_b, '("E:\computational_physics\Module_7_out\spiral_data\spiral_b_", i0 ,".dat")') num_file
+
+            open(unit=unit_a, file=filename_a)
+            open(unit=unit_b, file=filename_b)
+
+            do i = 1, grid_size
+                do j = 1, grid_size
+                    write(unit_a,*) i, j, a_grid_old(i,j)
+                    write(unit_b,*) i, j, b_grid_old(i,j)
+                end do
+            end do
+
+            close(unit_a)
+            close(unit_b)
+        
+        end if
     end do
-    
-    open(file = "E:\computational_physics\Module_7_out\test.csv", unit = 11)
-    do i = 1, grid_size
-        write (11,*) a_grid(1:grid_size,i)
-    end do
-    close(11)
 
 end program spiral_patterns

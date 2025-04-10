@@ -9,9 +9,12 @@ program diffusion_equation
     real*8 :: temp, temp_2, temp_3
     integer :: num_iter, num_snapshot
 
-    num_iter = 10000; num_snapshot = 100; grid_size = 59
+    integer :: unit_a, unit_b, num_file
+    character(len=100) :: filename_a, filename_b
 
-    dt = 0.001d0; h = 1.0d0
+    num_iter = 20000; num_snapshot = 100; grid_size = 50
+
+    dt = 0.002d0; h = 1.0d0
     diff_a = 0.75d0
 
     allocate(a_grid(grid_size,grid_size))
@@ -21,15 +24,29 @@ program diffusion_equation
     
     ! setting up initial conditions  
     call random_number(temp); call random_number(temp_2); call random_number(temp_3)
-    a_grid(nint(temp*grid_size),nint(temp_2*grid_size)) = temp_3
+    a_grid(nint(temp*grid_size),nint(temp_2*grid_size)) = 5 + temp_3
 
     a_grid_old = a_grid
+    
+    ! writing initial conditions
+    num_file = 1; unit_a = 10; unit_b = 11
+    write(filename_a, '("E:\computational_physics\Module_7_out\diffusion_data\diffusion_a_", i0 ,".dat")') num_file
+
+    open(unit=unit_a, file=filename_a)
+    do i = 1, grid_size
+        do j = 1, grid_size
+            write(unit_a,*) i, j, a_grid_old(i,j)
+        end do
+    end do
+    close(unit_a)
+
+    unit_a = unit_a + 2; unit_b = unit_b + 2; num_file = num_file + 1
 
     do k = 1, num_iter
         
         if (mod(k,501) == 0) then       ! this drops heat onto the grid
             call random_number(temp); call random_number(temp_2); call random_number(temp_3)
-            a_grid(nint(temp*grid_size),nint(temp_2*grid_size)) = temp_3
+            a_grid_old(nint(temp*grid_size),nint(temp_2*grid_size)) = 5 + temp_3
         end if
 
         do i = 1, grid_size
@@ -44,18 +61,26 @@ program diffusion_equation
                 a_grid(i,j) = (1 - 4*dt*diff_a/h**2)*a_grid_old(i,j) &
                               + (diff_a*dt/h**2)*(a_grid_old(left,j) + a_grid_old(right,j) &
                                                   + a_grid_old(i,top) + a_grid_old(i,down))
+            end do
+        end do
 
+        a_grid_old = a_grid
+
+        if (mod(k, num_snapshot) == 0) then
+
+            write(filename_a, '("E:\computational_physics\Module_7_out\diffusion_data\diffusion_a_", i0 ,".dat")') num_file
+            open(unit=unit_a, file=filename_a)
+
+            do i = 1, grid_size
+                do j = 1, grid_size
+                    write(unit_a,*) i, j, a_grid_old(i,j)
+                end do
             end do
 
-            a_grid_old = a_grid
-
-        end do
+            close(unit_a)
+            unit_a = unit_a + 2; unit_b = unit_b + 2; num_file = num_file + 1
+        
+        end if
     end do
     
-    open(file = "E:\computational_physics\Module_7_out\test.csv", unit = 11)
-    do i = 1, grid_size
-        write (11,*) a_grid(1:grid_size,i)
-    end do
-    close(11)
-
 end program diffusion_equation

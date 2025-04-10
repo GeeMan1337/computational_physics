@@ -1,4 +1,4 @@
-program turing_patterns
+program turing_patterns     !uses Fitzhugh Nagumo equations
     implicit none 
 
     integer :: i, j, k
@@ -9,12 +9,15 @@ program turing_patterns
     real*8 :: dt, h, diff_a, diff_b, alpha, beta   !h= dx =dy  !diff_a and diff_b are diffusion constants
     integer :: num_iter, num_snapshot
 
-    num_iter = 10000; num_snapshot = 100
+    integer :: unit_a, unit_b, num_file
+    character(len=100) :: filename_a, filename_b
+
+    num_iter = 40000; num_snapshot = 400
     grid_size = 100
 
     dt = 0.002d0; h = 1.0d0
-    diff_a = 0.35d0; diff_b = 93.0d0
-    alpha = 0.025d0; beta = 20.0d0
+    diff_a = 0.0045d0; diff_b = 100.0d0
+    alpha = 0.004d0; beta = 10.0d0
 
     allocate(a_grid(grid_size,grid_size))
     allocate(a_grid_old(grid_size,grid_size))
@@ -31,6 +34,22 @@ program turing_patterns
     end do
 
     a_grid_old = a_grid; b_grid_old = b_grid
+
+    ! writing initial conditions
+    num_file = 0; unit_a = 10; unit_b = 11
+    write(filename_a, '("E:\computational_physics\Module_7_out\turing_data\turing_a_", i0 ,".dat")') num_file
+    write(filename_b, '("E:\computational_physics\Module_7_out\turing_data\turing_b_", i0 ,".dat")') num_file
+
+    open(unit=unit_a, file=filename_a)
+    open(unit=unit_b, file=filename_b)
+    do i = 1, grid_size
+        do j = 1, grid_size
+            write(unit_a,*) i, j, a_grid_old(i,j)
+            write(unit_b,*) i, j, b_grid_old(i,j)
+        end do
+    end do
+    close(unit_a)
+    close(unit_b)
 
     do k = 1, num_iter
         
@@ -59,22 +78,30 @@ program turing_patterns
                               + dt*beta*(a_grid_old(i,j) - b_grid_old(i,j))
 
             end do
-
-            a_grid_old = a_grid; b_grid_old = b_grid
-
         end do
+        a_grid_old = a_grid; b_grid_old = b_grid
+
+        num_file = k
+
+        if (mod(k, num_snapshot) == 0) then
+
+            write(filename_a, '("E:\computational_physics\Module_7_out\turing_data\turing_a_", i0 ,".dat")') num_file
+            write(filename_b, '("E:\computational_physics\Module_7_out\turing_data\turing_b_", i0 ,".dat")') num_file
+
+            open(unit=unit_a, file=filename_a)
+            open(unit=unit_b, file=filename_b)
+
+            do i = 1, grid_size
+                do j = 1, grid_size
+                    write(unit_a,*) i, j, a_grid_old(i,j)
+                    write(unit_b,*) i, j, b_grid_old(i,j)
+                end do
+            end do
+
+            close(unit_a)
+            close(unit_b)
+        
+        end if
     end do
     
-    open(file = "E:\computational_physics\Module_7_out\test.csv", unit = 11)
-    do i = 1, grid_size
-        write (11,*) a_grid(1:grid_size,i)
-    end do
-    close(11)
-
-    open(file = "E:\computational_physics\Module_7_out\test_2.csv", unit = 12)
-    do i = 1, grid_size
-        write (12,*) b_grid(1:grid_size,i)
-    end do
-    close(12)
-
 end program turing_patterns
