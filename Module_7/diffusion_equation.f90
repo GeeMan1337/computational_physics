@@ -15,7 +15,7 @@ program diffusion_equation
     num_iter = 20000; num_snapshot = 100; grid_size = 50
 
     dt = 0.002d0; h = 1.0d0
-    diff_a = 0.75d0
+    diff_a = 3.75d0
 
     allocate(a_grid(grid_size,grid_size))
     allocate(a_grid_old(grid_size,grid_size))
@@ -24,7 +24,8 @@ program diffusion_equation
     
     ! setting up initial conditions  
     call random_number(temp); call random_number(temp_2); call random_number(temp_3)
-    a_grid(nint(temp*grid_size),nint(temp_2*grid_size)) = 5 + temp_3
+    a_grid(nint(temp*grid_size),nint(temp_2*grid_size)) &
+    = a_grid_old(nint(temp*grid_size),nint(temp_2*grid_size)) + temp_3
 
     a_grid_old = a_grid
     
@@ -46,7 +47,8 @@ program diffusion_equation
         
         if (mod(k,501) == 0) then       ! this drops heat onto the grid
             call random_number(temp); call random_number(temp_2); call random_number(temp_3)
-            a_grid_old(nint(temp*grid_size),nint(temp_2*grid_size)) = 5 + temp_3
+            a_grid_old(nint(temp*grid_size),nint(temp_2*grid_size)) &
+            = a_grid_old(nint(temp*grid_size),nint(temp_2*grid_size)) + 10*temp_3
         end if
 
         do i = 1, grid_size
