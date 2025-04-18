@@ -1,0 +1,11 @@
+in the terminal type:
+
+gfortran <module name> <program name>          (remember to use .f90 with module name and program name)
+./a.exe 
+
+
+
+to run faster
+
+gfortran -O2 gas_sim.f90 question_2_and_3.f90 -o sim
+./sim
